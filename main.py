@@ -37,8 +37,8 @@ class CSVTimeSeriesFile:
                 datum = elements[0].split('-')
             #quando non è presente, l'elemento che sto analizzando non è una data nel formato richiesto e quindi lo ignoro o è la riga di intestazione e quindi la ignoro
             is_data = True
-            print (datum[0])
-            print (datum[1])
+            #print (datum[0])
+            #print (datum[1])
             datum[0] = int (datum[0])
             datum[1] = int (datum[1])
             if datum[0] not in range (1949, 1960):
@@ -46,14 +46,14 @@ class CSVTimeSeriesFile:
             if datum[1] not in range (1, 12):
                 is_data = False
             # is_data mi permette di controllare se si tratta dell'intestazione, di righe fuori dal range o se si tratta di pezzi di testo che non c'entrano nulla
-            print (is_data)
+            #print (is_data)
             if is_data is True:
-                print ("E vero?")
+                #print ("E vero?")
                 elements [1] = int (elements[1])
 
                 #se il valore non è nullo o negativo ed è un intero
                 if elements[1] > 0:
-                    print ("Sono qui")
+                    #print ("Sono qui")
                     if elements[0] > last_date:
                     # Aggiungo alla lista gli elementi di questa linea
                         time_series.append(elements)
@@ -71,6 +71,56 @@ class CSVTimeSeriesFile:
         # Quando ho processato tutte le righe, ritorno i dati
         return time_series
 
+def compute_avg_monthly_difference (time_series, first_year, last_year):
+    #se last year e first_year non sono presenti nel file csv, bisogna alzare un'eccezione
+    #time_series è la variabile con la lista di liste tratta dal File
+    #print (type(first_year))
+    if type(first_year) is not str:
+        raise ExamException ("L'anno di inizio non è stato inserito come stringa")
+
+    if type(last_year) is not str:
+        raise ExamException ("L'anno di fine non è stato inserito come stringa")
+    
+    if first_year < "1949":
+        raise ExamException ("L'anno di inizio è antecedente al 1949")
+
+    if last_year > "1960":
+        raise ExamException ("L'anno di fine è successivo al 1960")
+
+    if last_year <= first_year:
+        raise ExamException ("L'intervallo di dati non è valido, si prega di inserire come secondo argomento della funzione l'anno di inizio e come terzo argomento l'anno di fine, che deve essere successivo a quello di inizio")
+    
+    totale_dati = len(time_series)
+    """
+    fir_year_n_month = time_series[0][0].split("-")
+    lst_year_n_month = time_series[totale_dati-1] [0].split("-")
+    if fir_year_n_month [0] > first_year:
+        raise ExamException ("Intervallo di tempo non valido: inizio non presente nel file")
+    if lst_year_n_month [0] < last_year:
+        raise ExamException ("Intervallo di tempo non valido: data di fine non presente nel file")
+    """
+    flag_start_y = False
+    flag_end_y = False
+
+    for i in range (0, totale_dati) and flag_start_y is False and flag_end_y is False:
+        curr_year_n_month = time_series[i][0].split ("-")
+        print (curr_year_n_month)
+        if curr_year_n_month [0] == first_year:
+            flag_start_y = True
+        if curr_year_n_month [0] == last_year:
+            flag_end_y = True
+    
+    if flag_start_y is False:
+        raise ExamException ("Intervallo di tempo non valido: inizio non presente nel file")
+
+    if flag_end_y is False:
+        raise ExamException ("Intervallo di tempo non valido: data di fine non presente nel file")
+    
+    risultati = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        
+
 provina = CSVTimeSeriesFile (name = "prova.csv")
 testi = provina.get_data()
 print (testi)
+results = compute_avg_monthly_difference(testi,"1949","1951")
