@@ -111,8 +111,8 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
     if curr_year_n_month [0] < last_year:
         raise ExamException ("Valore non presente nell'intervallo di dati")
     matrice_dati = []
-    delta = last_year - first_year
-    for i in range (0, delta+1):
+    delta = last_year - first_year + 1
+    for i in range (0, delta):
         matrice_dati.append([])
         for j in range (0, 12):
             matrice_dati[i].append(0)
@@ -131,64 +131,43 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
             indice_anno = curr_year_n_month[0] - first_year
             indice_mese = curr_year_n_month [1] - 1
             matrice_dati [indice_anno] [indice_mese] = time_series [i] [1]
-    print (matrice_dati)
+    print (matrice_dati[0])
+    print (matrice_dati [1])
+    print (matrice_dati [2])
 
-    """
-            
-    flag_start_y = False
-    flag_end_y = False
-
-    for i in range(0, totale_dati):
-        curr_year_n_month = time_series[i][0].split("-")
-        
-        if curr_year_n_month[0] == first_year:
-            flag_start_y = True
-        if curr_year_n_month[0] == last_year:
-            flag_end_y = True
-
-    if flag_start_y is False:
-        raise ExamException(
-            "Intervallo di tempo non valido: inizio non presente nel file")
-
-    if flag_end_y is False:
-        raise ExamException(
-            "Intervallo di tempo non valido: data di fine non presente nel file"
-        )
-    """
     risultati = []
     precedente = 0
     contatore = 0
     somma = 0
     valore = 0
-
-    for i in range (1, 13): #i = mese che sto analizzando, 1 = gennario, 2 = febbraio, ... non viene usato mai in un array o in una lista ma solo per confronto
-        for j in range (0, totale_dati):
-            curr_year_n_month = time_series[j][0].split("-")
-            curr_year_n_month [1] = int (curr_year_n_month [1])
-            if curr_year_n_month [1] == i:
-                if precedente == 0:
-                    precedente = time_series [j] [1]
-                    print (precedente)
-                else:
-                    if time_series [j] [1] != 0:
-                        differenza = time_series [j] [1] - precedente
-                        somma = somma + differenza
-                        contatore = contatore + 1
+    """
+    Restituisce la formula dove le operazioni che contengono zeri hanno come risultato sempre 0
+    """
+    for i in range (0, 12): # i è la colonna
+        for j in range (0, delta): #j è la colonna
+            attuale = matrice_dati [j] [i]
+            if attuale != 0 and precedente != 0:
+                differenza = attuale - precedente
+                somma = somma + differenza
+                contatore = contatore + 1
+                print ("{} - {}" .format(attuale, precedente))
+            precedente = attuale
+                
         if contatore > 0:
             valore = somma / contatore
         else:
             valore = somma
+        print ("Il valore della somma nel ciclo {}" .format(i))
+        print (somma)
+        print (valore)
+        print ("Ecco i valori del ciclo seguente:")
         differenza = 0
         contatore = 0
         somma = 0
+        precedente = 0
         risultati.append(valore)
 
-    
-
     return risultati
-
-
-        
 
 
 provina = CSVTimeSeriesFile(name="prova.csv")
