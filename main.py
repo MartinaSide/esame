@@ -111,8 +111,12 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
     if curr_year_n_month [0] < last_year:
         raise ExamException ("Valore non presente nell'intervallo di dati")
     matrice_dati = []
-    anno_precedente = first_year - 1
-    mese_precedente = 12
+    delta = last_year - first_year
+    for i in range (0, delta+1):
+        matrice_dati.append([])
+        for j in range (0, 12):
+            matrice_dati[i].append(0)
+
     for i in range (0, totale_dati):
         curr_year_n_month = time_series [i] [0].split("-")
         curr_year_n_month[0] = int(curr_year_n_month[0])
@@ -124,44 +128,9 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
             #dato che la lista è ordinata cronologicamente, è certo che non ci sono più dati da analizzare
         else:
         #indice anno mi permette di capire in che riga della matrice sono
-            indice_anno = len (matrice_dati) - 1
-        #fino a quando 
-            """
-            while curr_year_n_month [0] > (anno_precedente + 1):
-                matrice_dati.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-                anno_precedente += 1
-                """
-            if curr_year_n_month [0] > anno_precedente:
-                #aggiungo un numero di zeri alla riga dell'anno precedente della matrice, tali che ho un totale di 12 valori nella riga
-                for j in range (mese_precedente, 12):
-                    matrice_dati[indice_anno].append(0)
-                #aggiunto una nuova riga alla matrice
-                matrice_dati.append([])
-                #ricalcolo il numero di righe della matrice
-                indice_anno = len (matrice_dati) - 1
-                for j in range (0, curr_year_n_month[1]-1):
-                    matrice_dati [indice_anno].append (0)
-                matrice_dati [indice_anno].append(time_series [i] [1])
-                mese_precedente = curr_year_n_month [1]
-                anno_precedente = curr_year_n_month [0]
-                print ("Sono l'if, piacere!")
-                print (matrice_dati)
-            else:
-                while curr_year_n_month [1] > mese_precedente + 1:
-                    matrice_dati [indice_anno].append(0)
-                    mese_precedente += 1
-                matrice_dati [indice_anno].append(time_series [i] [1])
-                mese_precedente = curr_year_n_month [1]
-                print ("Sono l'else, e sono piu carino dell'if ehe!")
-                print (matrice_dati)
-    #print (matrice_dati)
-    #aggiungo l'opportuna quantità di zeri all'ultima riga della matrice in modo che sia anche questa formata da 12 elementi
-    print (len(matrice_dati[0]))
-    lunghezza = len (matrice_dati) - 1
-    lunghezza_ul_el = len (matrice_dati[lunghezza])
-    for i in range (lunghezza_ul_el, 12):
-        matrice_dati[lunghezza].append (0)
-    print (len(matrice_dati[lunghezza]))
+            indice_anno = curr_year_n_month[0] - first_year
+            indice_mese = curr_year_n_month [1] - 1
+            matrice_dati [indice_anno] [indice_mese] = time_series [i] [1]
     print (matrice_dati)
 
     """
