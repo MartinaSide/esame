@@ -143,36 +143,43 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
             matrice_dati [indice_anno] [indice_mese] = time_series [i] [1]
 
     risultati = []
-    precedente = 0
-    contatore = 0
-    somma = 0
     valore = 0
     """
     Restituisce la formula dove le operazioni che contengono zeri hanno come risultato sempre 0
     """
     for i in range (0, 12): # i è la colonna
-        for j in range (0, delta): #j è la colonna
-            attuale = matrice_dati [j] [i]
-            if attuale != 0 and precedente != 0:
-                differenza = attuale - precedente
-                somma = somma + differenza
-                contatore = contatore + 1
-                #print ("{} - {}" .format(attuale, precedente))
-            precedente = attuale
-                
-        if contatore > 0:
-            valore = somma / contatore
+        r_ini = 0
+        r_fin = len(matrice_dati) - 1
+        inizio = 0
+        fine = 0
+        while inizio == 0 and r_ini<=r_fin:
+             inizio = matrice_dati [r_ini] [i]
+             r_ini += 1
+        r_ini -= 1
+        if r_ini >= r_fin:
+            valore = 0
         else:
-            valore = somma
-        #print ("Il valore della somma nel ciclo {}" .format(i))
-        #print (somma)
-        #print (valore)
-        #print ("Ecco i valori del ciclo seguente:")
-        differenza = 0
-        contatore = 0
-        somma = 0
-        precedente = 0
+            while fine == 0 and r_fin > 0:
+                fine = matrice_dati [r_fin] [i]
+                r_fin -= 1
+            r_fin += 1
+            if r_fin == 1:
+                valore = 0
+            elif r_fin == r_ini:
+                valore = 0
+            else:
+                """
+                print ("*****************")
+                print (fine)
+                print (inizio)
+                """
+                valore = (fine - inizio) / (r_fin - r_ini)
+                #print (valore)
+
         risultati.append(valore)
+    #print (risultati)
+    print (len(risultati))
+    print ("***************")
 
     return risultati
 
@@ -180,7 +187,7 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
 provina = CSVTimeSeriesFile(name="prova.csv")
 testi = provina.get_data()
 print(testi)
-results = compute_avg_monthly_difference(testi, "1949", "1951")
+results = compute_avg_monthly_difference(testi, "1949", "1952")
 print (results)
 #print (len(results))
 """

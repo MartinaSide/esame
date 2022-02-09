@@ -162,6 +162,9 @@ class TestAndGrade(unittest.TestCase):
             time_series_file = CSVTimeSeriesFile(file.name)
             time_series = time_series_file.get_data()
             results = compute_avg_monthly_difference(time_series, "1949" ,"1950")
+            print ("Risultati:")
+            print (results)
+            print ("*****************")
 
             self.assertEqual(results[2], 0)
             self.assertEqual(results[6], 0)
