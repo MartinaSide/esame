@@ -87,67 +87,122 @@ class CSVTimeSeriesFile:
 
 
 def compute_avg_monthly_difference(time_series, first_year, last_year):
-    #se last year e first_year non sono presenti nel file csv, bisogna alzare un'eccezione
+    
     #time_series è la variabile con la lista di liste tratta dal File
-    #print (type(first_year))
+    
+    # se first_year o last_year non sono una stringa, alzo un'eccezione
     if type(first_year) is not str:
-        raise ExamException(
-            "L'anno di inizio non è stato inserito come stringa")
+        raise ExamException("L'anno di inizio non è stato inserito come stringa")
 
     if type(last_year) is not str:
         raise ExamException("L'anno di fine non è stato inserito come stringa")
-
+    
+    #se l'anno di fine è successivo all'anno di inizio, vengono invertiti
+    if last_year < first_year:
+        last_year, first_year = first_year, last_year
+    
+    #i dati del file iniziano con il 1949, quindi non è possibile che l'anno di inizio sia antecedente a questo, viene quindi alzata un'eccezione:
     if first_year < "1949":
         raise ExamException("L'anno di inizio è antecedente al 1949")
 
+    #i dati del file finiscono con il 1960, quindi non è possibile che l'anno di fine sia successivo a questo, viene quindi alzata un'eccezione:
     if last_year > "1960":
         raise ExamException("L'anno di fine è successivo al 1960")
 
-    if last_year <= first_year:
-        raise ExamException(
-            "L'intervallo di dati non è valido, si prega di inserire come secondo argomento della funzione l'anno di inizio e come terzo argomento l'anno di fine, che deve essere successivo a quello di inizio"
-        )
-    first_year = int (first_year)
-    last_year = int (last_year)
-    totale_dati = len(time_series)
+    #se l'anno di inizio e l'anno di fine coincidono, viene alzata un'eccezione in quanto non è possibile effettuare i calcoli
+    if last_year == first_year:
+        raise ExamException("L'anno di inizio e di fine coincidono, non è possibile effettuare la media richiesta")
     
-    #creo la matrice
+    #l'anno con cui iniziare a costruire la matrice è first_year, viene convertito a intero in modo da permettere il confronto con dati successivi
+    
+    first_year = int (first_year)
+    #l'anno con cui finire a costruire la matrice è last_year, viene convertito a intero in modo da permettere il confronto con dati successivi
+    last_year = int (last_year)
+    
+    #totale dati mi permette di sapere la quante coppie di dati ho in time_series e quindi iterare più facilmente
+    totale_dati = len(time_series)
+
+    #curr_year_n_month è una lista contentente come primo elemento l'anno e come secondo il mese della coppia di dati di time_series che sto analizzando. Le dò come primo valore il primo della lista time_series in modo da controllare se è minore del primo anno
     curr_year_n_month = time_series[0] [0].split("-")
+
+    #converto l'anno a intero per permettere il confronto
     curr_year_n_month [0] = int(curr_year_n_month[0])
+
+    #se il primo anno di cui ho valori è successivo al primo anno da cui devo partire, alzo un'eccezione
     if curr_year_n_month [0] > first_year:
         raise ExamException ("Valore non presente nell'intervallo di dati")
+    
+    #curr_year_n_month è una lista contentente come primo elemento l'anno e come secondo il mese della coppia di dati di time_series che sto analizzando. Le dò come valore ora l'ultimo della lista time_series in modo da controllare se è maggiore dell'ultimo anno
     curr_year_n_month = time_series[len(time_series)-1] [0].split("-")
+    
+    #converto curr_year_n_month a intero per permettere il confronto
     curr_year_n_month [0] = int(curr_year_n_month[0])
+
+    #se l'ultimo anno di cui ho valori è precedente all'ultimo anno con cui devo fare la media, alzo un'eccezione:
     if curr_year_n_month [0] < last_year:
         raise ExamException ("Valore non presente nell'intervallo di dati")
+    
+    #creo la lista di liste matrice_dati (la posso immaginare come una matrice) dove inserire solamente i valori degli anni di cui ho bisogno per fare i calcoli, se non ho qualche valore lo sostituisco con 0
     matrice_dati = []
+
+    #delta mi permette di scoprire quante righe ho bisogno per la mia matrice
     delta = last_year - first_year + 1
+    
+    #creo un numero di righe uguali a delta
     for i in range (0, delta):
         matrice_dati.append([])
+
+        #riempio con dodici elementi uguali a 0 ciascuna "riga" della matrice
         for j in range (0, 12):
             matrice_dati[i].append(0)
-
+    
+    #inizio a riempire la matrice
+    #scorro tutta la lista che mi è stata data in imput dall'utente
     for i in range (0, totale_dati):
+
+        #come prima, creo una lista, curr_year_n_month per sapere in che anno e in che mese mi trovo. Converto gli elementi in interi in modo da permettermi confronti con altri numeri
         curr_year_n_month = time_series [i] [0].split("-")
         curr_year_n_month[0] = int(curr_year_n_month[0])
         curr_year_n_month[1] = int (curr_year_n_month[1])
+        
+        #se l'anno che sto guardando è antecedente all'anno da cui devo partire per fare la media, lo ignoro
         if curr_year_n_month [0] < first_year:
             pass
+        
+        #se l'anno che sto analizzando è successivo all'anno con cui devo finire di fare la media, esco dal ciclo, in quanto so che la lista è stata ordinata cronologicamente e quindi non ho altri elementi da analizzare
         elif curr_year_n_month [0] > last_year:
             break
-            #dato che la lista è ordinata cronologicamente, è certo che non ci sono più dati da analizzare
+
+        #se sono in uno degli anni che mi interessa vado a compilare la matrice
         else:
-        #indice anno mi permette di capire in che riga della matrice sono
+            
+            #indice_anno mi permette di capire in che riga della matrice sono, infatti è dato dalla differenza tra l'anno che sto analizzando e l'anno da cui devo partire
             indice_anno = curr_year_n_month[0] - first_year
+            
+            #indice_mese è uguale al mese attuale - 1, infatti, gennaio occuperebbe la posizione 0 nella lista
             indice_mese = curr_year_n_month [1] - 1
+
+            #cambio il valore nella riga indice_anno nella colonna indice_mese di matrice_dati con il valore di time_series che sto analizzando
             matrice_dati [indice_anno] [indice_mese] = time_series [i] [1]
 
+    #creo "risultati" una lista dove inserire i risultati delle medie
     risultati = []
     valore = 0
-    """
-    Restituisce la formula dove le operazioni che contengono zeri hanno come risultato sempre 0
-    """
-    for i in range (0, 12): # i è la colonna
+    
+    #RAGIONAMENTO PER IL PROSSIMO CICLO:
+    #La formula della differenza media è data da:
+    #(b-a)+(c-b)+...+(z-y) / num
+    #a causa della formula tutti gli elementi che non sono il primo (a) e l'ultimo (z) vengono semplificati: le proprietà delle operazioni infatti mi permettono di togliere le parentesi e riordinare, immaginando i - come +(-), ottenendo quindi al numeratore:
+    #b+(-a)+c+(-b)+...+z+(-y)           =>
+    #-a + b + (-b) + c + (-c) + ... + y + (-y) + z      =>
+    #-a+z = z-a
+    #cioè al numeratore ho la differenza tra l'ultimo e il primo elemento
+    #riuscendo a sapere quanto vale il denumeratore, posso evitare di effettuare tutti i calcoli intermedi e andare a lavorare solo sul primo e sull'ultimo, gestendo quando eventualmente uno dei due o entrambi sono uguali a zero
+
+    #itero su ciascuna colonna
+    for i in range (0, 12):
+        
+        #la prima riga da cui devo partire 
         r_ini = 0
         r_fin = len(matrice_dati) - 1
         inizio = 0
@@ -169,28 +224,17 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
             if r_fin == r_ini:
                 valore = 0
             else:
-                """
-                print ("*****************")
-                print (fine)
-                print (inizio)
-                print (r_ini)
-                print (r_fin)
-                """
                 valore = (fine - inizio) / (r_fin - r_ini)
-                #print (valore)
 
         risultati.append(valore)
-    #print (risultati)
-    #print (len(risultati))
     print ("***************")
 
     return risultati
 
-"""
+
 provina = CSVTimeSeriesFile(name="prova.csv")
 testi = provina.get_data()
 print(testi)
-results = compute_avg_monthly_difference(testi, "1949", "1950")
+results = compute_avg_monthly_difference(testi, "1950", "1949")
 print (results)
 #print (len(results))
-"""
