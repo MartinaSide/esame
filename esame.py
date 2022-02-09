@@ -28,10 +28,18 @@ class CSVTimeSeriesFile:
             # Faccio lo split di ogni linea sulla virgola
             if "," in line:
                 elements = line.split(',')
+                if len(elements) < 2:
+                    pass
+                elif len(elements) == 2:
+                    # Con la funzione strip() tolgo il carattere di new line:
+                    elements[1] = elements[1].strip()
+                    #print (elements[1])
+                else:
+                    while len(elements)>2:
+                        elements.pop(-1)
+                    elements[1].strip()
 
-                # Con la funzione strip() tolgo il carattere di new line:
-                elements[1] = elements[1].strip()
-                #print (elements[1])
+
 
                 #datum è una lista contentente la prima parte di elements, cioè la data
                 datum = [0, 0]
