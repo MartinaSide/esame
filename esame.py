@@ -153,32 +153,35 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
         inizio = 0
         fine = 0
         while inizio == 0 and r_ini<=r_fin:
-             inizio = matrice_dati [r_ini] [i]
-             r_ini += 1
-        r_ini -= 1
-        if r_ini >= r_fin:
+            inizio = matrice_dati [r_ini] [i]
+            r_ini += 1
+            
+        
+        if r_ini > r_fin:
             valore = 0
+        
         else:
-            while fine == 0 and r_fin > 0:
+            r_ini -= 1
+            while fine == 0 and r_fin >= 0:
                 fine = matrice_dati [r_fin] [i]
                 r_fin -= 1
             r_fin += 1
-            if r_fin == 1:
-                valore = 0
-            elif r_fin == r_ini:
+            if r_fin == r_ini:
                 valore = 0
             else:
                 """
                 print ("*****************")
                 print (fine)
                 print (inizio)
+                print (r_ini)
+                print (r_fin)
                 """
                 valore = (fine - inizio) / (r_fin - r_ini)
                 #print (valore)
 
         risultati.append(valore)
     #print (risultati)
-    print (len(risultati))
+    #print (len(risultati))
     print ("***************")
 
     return risultati
@@ -187,7 +190,7 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
 provina = CSVTimeSeriesFile(name="prova.csv")
 testi = provina.get_data()
 print(testi)
-results = compute_avg_monthly_difference(testi, "1949", "1952")
+results = compute_avg_monthly_difference(testi, "1949", "1950")
 print (results)
 #print (len(results))
 """
