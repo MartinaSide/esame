@@ -202,32 +202,49 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
     #itero su ciascuna colonna
     for i in range (0, 12):
         
-        #la prima riga da cui devo partire 
-        r_ini = 0
-        r_fin = len(matrice_dati) - 1
+        #la prima riga da cui devo partire è messa a -1 perché non appena entro nel while l'incremento di uno e quindi diventa zero. Se l'avessi messa a 0, avrei dovuto mettere nel while:
+        #inizio = matrice_dati [r_ini] [i]
+        #r_ini += 1
+        #E quindi fuori dal while, dentro all'else, r_ini-=1. Ho pensato che per mantenere il codice sarebbe stato più semplice avere meno cambiamenti della variabile da controllare
+        r_ini = -1
+
+        #l'ultima riga da cui devo partire è uguale a len(matrice_dati) e non a (len(matrice_dati) - 1) per un ragionamento analogo a quello su r_ini
+        r_fin = len(matrice_dati)
+
+        #inizializzo inizio e fine a 0, sono rispettivamente il primo e l'ultimo valore non nulli della colonna e quelli utilizzati per la media
         inizio = 0
         fine = 0
-        while inizio == 0 and r_ini<=r_fin:
-            inizio = matrice_dati [r_ini] [i]
+
+        #fino a quando non ho un valore non nullo nella colonna o fino a quando non termino di analizzare i dati nella colonna, cerco il valore di inizio
+        #nelle condizioni del while "r_ini < r_fin - 1" perché viene aumentato immediatamente dopo il valore di r_ini e se accettassi che r_ini sia minore stretto di r_fin (r_fin = len (matrice_dati)), avrei che nel caso di una colonna composta interamente da zeri, l'indice sarebbe uguale a len(matrice_dati), ma nella lista non ci sono valori in quell'indice, risultando in un errore
+        while inizio == 0 and r_ini < r_fin - 1 :
             r_ini += 1
-            
+            inizio = matrice_dati [r_ini] [i]
         
-        if r_ini > r_fin:
+        #se r_ini è uguale alla lunghezza della lista meno uno, vuol dire che l'ho attraversata tutta e, indifferentemente se il valore ultimo di inizio è uguale a zero o meno, non mi è possibile effettuare calcoli, quindi, come per istruzioni, il valore corrispondente a quel mese che verrà ritornato nella lista sarà uguale a 0
+        if r_ini == (r_fin - 1):
             valore = 0
         
+        #altrimenti, vuol dire che almeno per l'inizio posso effettuare i calcoli
         else:
-            r_ini -= 1
-            while fine == 0 and r_fin >= 0:
-                fine = matrice_dati [r_fin] [i]
+            
+            #fino a quanod non ho un valore non nullo nella colonna o fino a quando non termino di analizzare i dati nella colonna, cerco il valore di fine non nullo
+            #nelle condizioni del while "r_fin > 0", così l'ultima volta che entro nel ciclo il suo valore sarà 1, e verrà quindi modificato in 0, rimanendo all'interno della lista
+            #parto dall'ultima riga della matrice in maniera da trovare l'ultimo valore non nullo della colonna della matrice
+            while fine == 0 and r_fin > 0:
                 r_fin -= 1
-            r_fin += 1
+                fine = matrice_dati [r_fin] [i]
+            
+            #se r_fin (cioè l'ultima riga della matrice nella cui colonna ho un valore non nullo) è uguale a r_ini (cioè la prima riga della matrice nella cui colonna ho un valore non nullo), il valore corrispondente a quel mese è 0, in quanto ho solamente un dato non nullo in tutta la colonna
             if r_fin == r_ini:
                 valore = 0
+            
+            #altrimenti significa che ho almeno due valori con la riga distinta tra loro che mi permettono di effettuare i calcoli
             else:
                 valore = (fine - inizio) / (r_fin - r_ini)
 
+        #aggiungo il valore che ho calcolato alla lista contentente i risultati
         risultati.append(valore)
-    print ("***************")
 
     return risultati
 
@@ -235,6 +252,5 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
 provina = CSVTimeSeriesFile(name="prova.csv")
 testi = provina.get_data()
 print(testi)
-results = compute_avg_monthly_difference(testi, "1950", "1949")
+results = compute_avg_monthly_difference(testi, "1949", "1951")
 print (results)
-#print (len(results))
