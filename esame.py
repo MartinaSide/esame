@@ -28,7 +28,7 @@ class CSVTimeSeriesFile:
             # Faccio lo split di ogni linea sulla virgola
             if "," in line:
                 elements = line.split(',')
-                is_data = True
+                is_data = False
                 is_int = True
                 if len(elements) < 2:
                     #non lavoro su questi dati e li ignoro
@@ -64,7 +64,7 @@ class CSVTimeSeriesFile:
                         elements[1] = int(elements[1])
                     except: 
                         is_int = False
-                if is_int == True:
+                if is_int == True and is_data == True:
                 #se il valore non è nullo o negativo ed è un intero
                     if elements[1] > 0:
                     #print ("Sono qui")
@@ -75,7 +75,7 @@ class CSVTimeSeriesFile:
                         elif elements[0] == last_date:
                             raise ExamException("L'elemento {} è duplicato".format(
                             elements[0]))
-                        else:
+                        elif elements[0] < last_date:
                             raise ExamException("L'elemento {} è fuori sequenza".format(elements[0]))
                     #altrimenti ignoro, come da consegna
 
