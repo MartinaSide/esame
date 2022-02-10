@@ -1,3 +1,17 @@
+"""
+STANDARD:
+Dati un numero n di anni, si trovano il primo e l'ultimo valore per ogni mese non nulli e viene calcolata la media in base a questi, ignorando la possibilità che ci siano valori non definiti all'interno dell'intervallo, in quanto non servono per il calcolo della media mensile.
+VARIANTE:
+Dati un numero n di anni, si trovano il primo e l'ultimo valore per ogni mese non nulli e viene calcolata la media in base a questi, controllando però che non ci siano valori non definiti all'interno dell'intervallo. Quando all'interno dell'intervallo si riscontra un valore nullo (nella lista di liste matrice_dati è stato inserito 0 per ogni valore mancante), il numero per cui dividere non incrementa.
+In pratica, STANDARD usa un divisore fissato, dato dal delta tra il primo e l'ultimo anno nell'intervallo richiesto di cui ho valori, mentre VARIANTE lo calcola in base al numero di valori non nulli all'interno dell'intervallo.
+Esempio
+1949-01,150
+1950-01, 130
+1952-01, 200
+STANDARD: (200-150)/3 = 16.6
+VARIANTE: (200-150) / 2 = 25
+"""
+
 class ExamException(Exception):
     pass
 
@@ -161,7 +175,7 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
     #creo la lista di liste matrice_dati (la posso immaginare come una matrice) dove inserire solamente i valori degli anni di cui ho bisogno per fare i calcoli, se non ho qualche valore lo sostituisco con 0
     matrice_dati = []
 
-    #delta mi permette di scoprire quante righe ho bisogno per la mia matrice
+    #delta mi permette di scoprire di quante righe ho bisogno per la mia matrice
     delta = last_year - first_year + 1
     
     #creo un numero di righe uguali a delta
@@ -171,6 +185,13 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
         #riempio con dodici elementi uguali a 0 ciascuna "riga" della matrice
         for j in range (0, 12):
             matrice_dati[i].append(0)
+    
+    #VARIANTE: creo una lista di dodici elementi in cui segno quanti dati non nulli ho per ciascun mese. La riempio di valori uguali a -1 perché con n dati il divisore è (n-1)
+    #STANDARD: divisore viene ugualmente utilizzato, ma solamente per non scorrere tutte le colonne della matrice quando si sa a priori che non è possibile effettuare il calcolo
+    divisore = []
+
+    for i in range (0, 12):
+        divisore.append(-1)
     
     #inizio a riempire la matrice
     #scorro tutta la lista che mi è stata data in imput dall'utente
@@ -201,6 +222,9 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
             #cambio il valore nella riga indice_anno nella colonna indice_mese di matrice_dati con il valore di time_series che sto analizzando
             matrice_dati [indice_anno] [indice_mese] = time_series [i] [1]
 
+            #VARIANTE e STANDARD: per ogni elemento che trovo in un mese incremento di uno
+            divisore [indice_mese] += 1            
+
     #creo "risultati" una lista dove inserire i risultati delle medie
     risultati = []
     valore = 0
@@ -218,46 +242,55 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
     #itero su ciascuna colonna
     for i in range (0, 12):
         
-        #la prima riga da cui devo partire è messa a -1 perché non appena entro nel while l'incremento di uno e quindi diventa zero. Se l'avessi messa a 0, avrei dovuto mettere nel while:
-        #inizio = matrice_dati [r_ini] [i]
-        #r_ini += 1
-        #E quindi fuori dal while, dentro all'else, r_ini-=1. Ho pensato che per mantenere il codice sarebbe stato più semplice avere meno cambiamenti della variabile da controllare
-        r_ini = -1
+        #se nella colonna ho più di un valore non nullo, allora posso fare i calcoli:
+        if divisore [i] > 0:
+            #la prima riga da cui devo partire è messa a -1 perché non appena entro nel while l'incremento di uno e quindi diventa zero. Se l'avessi messa a 0, avrei dovuto mettere nel while:
+            #inizio = matrice_dati [r_ini] [i]
+            #r_ini += 1
+            #E quindi fuori dal while, dentro all'else, r_ini-=1. Ho pensato che per mantenere il codice sarebbe stato più semplice avere meno cambiamenti della variabile da controllare
+            r_ini = -1
 
-        #l'ultima riga da cui devo partire è uguale a len(matrice_dati) e non a (len(matrice_dati) - 1) per un ragionamento analogo a quello su r_ini
-        r_fin = len(matrice_dati)
+            #l'ultima riga da cui devo partire è uguale a len(matrice_dati) e non a (len(matrice_dati) - 1) per un ragionamento analogo a quello su r_ini
+            r_fin = len(matrice_dati)
 
-        #inizializzo inizio e fine a 0, sono rispettivamente il primo e l'ultimo valore non nulli della colonna e quelli utilizzati per la media
-        inizio = 0
-        fine = 0
+            #inizializzo inizio e fine a 0, sono rispettivamente il primo e l'ultimo valore non nulli della colonna e quelli utilizzati per la media
+            inizio = 0
+            fine = 0
 
-        #fino a quando non ho un valore non nullo nella colonna o fino a quando non termino di analizzare i dati nella colonna, cerco il valore di inizio
-        #nelle condizioni del while "r_ini < r_fin - 1" perché viene aumentato immediatamente dopo il valore di r_ini e se accettassi che r_ini sia minore stretto di r_fin (r_fin = len (matrice_dati)), avrei che nel caso di una colonna composta interamente da zeri, l'indice sarebbe uguale a len(matrice_dati), ma nella lista non ci sono valori in quell'indice, risultando in un errore
-        while inizio == 0 and r_ini < r_fin - 1 :
-            r_ini += 1
-            inizio = matrice_dati [r_ini] [i]
+            #fino a quando non ho un valore non nullo nella colonna o fino a quando non termino di analizzare i dati nella colonna, cerco il valore di inizio
+            #nelle condizioni del while "r_ini < r_fin - 1" perché viene aumentato immediatamente dopo il valore di r_ini e se accettassi che r_ini sia minore stretto di r_fin (r_fin = len (matrice_dati)), avrei che nel caso di una colonna composta interamente da zeri, l'indice sarebbe uguale a len(matrice_dati), ma nella lista non ci sono valori in quell'indice, risultando in un errore
+            while inizio == 0 and r_ini < r_fin - 1 :
+                r_ini += 1
+                inizio = matrice_dati [r_ini] [i]
         
-        #se r_ini è uguale alla lunghezza della lista meno uno, vuol dire che l'ho attraversata tutta e, indifferentemente se il valore ultimo di inizio è uguale a zero o meno, non mi è possibile effettuare calcoli, quindi, come per istruzioni, il valore corrispondente a quel mese che verrà ritornato nella lista sarà uguale a 0
-        if r_ini == (r_fin - 1):
-            valore = 0
-        
-        #altrimenti, vuol dire che almeno per l'inizio posso effettuare i calcoli
-        else:
-            
-            #fino a quanod non ho un valore non nullo nella colonna o fino a quando non termino di analizzare i dati nella colonna, cerco il valore di fine non nullo
-            #nelle condizioni del while "r_fin > 0", così l'ultima volta che entro nel ciclo il suo valore sarà 1, e verrà quindi modificato in 0, rimanendo all'interno della lista
-            #parto dall'ultima riga della matrice in maniera da trovare l'ultimo valore non nullo della colonna della matrice
-            while fine == 0 and r_fin > 0:
-                r_fin -= 1
-                fine = matrice_dati [r_fin] [i]
-            
-            #se r_fin (cioè l'ultima riga della matrice nella cui colonna ho un valore non nullo) è uguale a r_ini (cioè la prima riga della matrice nella cui colonna ho un valore non nullo), il valore corrispondente a quel mese è 0, in quanto ho solamente un dato non nullo in tutta la colonna
-            if r_fin == r_ini:
+            #se r_ini è uguale alla lunghezza della lista meno uno, vuol dire che l'ho attraversata tutta e, indifferentemente se il valore ultimo di inizio è uguale a zero o meno, non mi è possibile effettuare calcoli, quindi, come per istruzioni, il valore corrispondente a quel mese che verrà ritornato nella lista sarà uguale a 0
+            if r_ini == (r_fin - 1):
                 valore = 0
-            
-            #altrimenti significa che ho almeno due valori con la riga distinta tra loro che mi permettono di effettuare i calcoli
+        
+            #altrimenti, vuol dire che almeno per l'inizio posso effettuare i calcoli
             else:
-                valore = (fine - inizio) / (r_fin - r_ini)
+            
+                #fino a quanod non ho un valore non nullo nella colonna o fino a quando non termino di analizzare i dati nella colonna, cerco il valore di fine non nullo
+                #nelle condizioni del while "r_fin > 0", così l'ultima volta che entro nel ciclo il suo valore sarà 1, e verrà quindi modificato in 0, rimanendo all'interno della lista
+                #parto dall'ultima riga della matrice in maniera da trovare l'ultimo valore non nullo della colonna della matrice
+                while fine == 0 and r_fin > 0:
+                    r_fin -= 1
+                    fine = matrice_dati [r_fin] [i]
+            
+                #se r_fin (cioè l'ultima riga della matrice nella cui colonna ho un valore non nullo) è uguale a r_ini (cioè la prima riga della matrice nella cui colonna ho un valore non nullo), il valore corrispondente a quel mese è 0, in quanto ho solamente un dato non nullo in tutta la colonna
+                if r_fin == r_ini:
+                    valore = 0
+            
+                #altrimenti significa che ho almeno due valori con la riga distinta tra loro che mi permettono di effettuare i calcoli
+                else:
+                    """
+                    valore = (fine - inizio) / (r_fin - r_ini)
+                    #VARIANTE:
+                    """
+                    valore = (fine - inizio) / divisore [i]
+                    
+        else:
+            valore = 0
 
         #aggiungo il valore che ho calcolato alla lista contentente i risultati
         risultati.append(valore)
