@@ -28,8 +28,7 @@ class CSVTimeSeriesFile:
             my_file.readline()
         #se non riesco ad aprire il file, perché non lo trovo, alzo un'eccezione:
         except:
-            raise ExamException("Errore in apertura del file {}".format(
-                self.name))
+            raise ExamException("Errore in apertura del file {}".format(self.name))
         
         # Inizializzo una lista vuota per salvare tutti i dati
         time_series = []
