@@ -283,10 +283,12 @@ def compute_avg_monthly_difference(time_series, first_year, last_year):
             
                 #altrimenti significa che ho almeno due valori con la riga distinta tra loro che mi permettono di effettuare i calcoli
                 else:
+                    #STANDARD:
                     """
                     valore = (fine - inizio) / (r_fin - r_ini)
-                    #VARIANTE:
                     """
+                    
+                    #VARIANTE:
                     valore = (fine - inizio) / divisore [i]
                     
         else:
